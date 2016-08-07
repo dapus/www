@@ -101,7 +101,7 @@ func main() {
 		http.Dir(serveDir),
 		"",
 		tpl,
-		"index.md",
+		[]string{"index.md"},
 	}
 
 	http.HandleFunc("/", logRequest(dirHandle))
@@ -111,7 +111,7 @@ func main() {
 			gitrepos.GitRepos(serveGit),
 			"/git",
 			tpl,
-			"README.md",
+			[]string{"README.md", "README"},
 		}
 
 		http.HandleFunc("/git/", logRequest(gitHandle))
