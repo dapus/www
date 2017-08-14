@@ -6,7 +6,7 @@ import (
 )
 
 type FileInfo struct {
-	mode string
+	mode uint64
 	objectType string
 	hash string
 	name string

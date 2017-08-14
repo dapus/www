@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 	_path "path"
+	"strconv"
 )
 
 type Git struct {
@@ -48,8 +49,14 @@ func (g *Git) ListFiles(path string) ([]os.FileInfo, error) {
 			continue
 		}
 
+		mode, err := strconv.ParseUint(cols[0], 8, 64)
+
+		if err != nil {
+			return nil, err
+		}
+
 		fi := &FileInfo{
-			mode: cols[0],
+			mode: mode,
 			objectType: cols[1],
 			hash: cols[2],
 			name: _path.Base(cols[3]),
