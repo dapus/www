@@ -75,12 +75,13 @@ func init() {
 	flag.StringVar(&serveGit, "git", "", "Git directory to serve")
 }
 
-func logRequest(handler http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func logRequest(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		url := r.URL.Path;
 		rw := &ResponseWriter{w, 0}
 		handler.ServeHTTP(rw, r);
-		log.Printf("%d %s %s", rw.Status(), r.Method, r.URL.Path)
-	}
+		log.Printf("%d %s %s", rw.Status(), r.Method, url)
+	})
 }
 
 func main() {
@@ -99,22 +100,20 @@ func main() {
 
 	dirHandle := &dirlist.DirList{
 		http.Dir(serveDir),
-		"",
 		tpl,
 		[]string{"index.md"},
 	}
 
-	http.HandleFunc("/", logRequest(dirHandle))
+	http.Handle("/", logRequest(dirHandle))
 
 	if serveGit != "" {
 		gitHandle := &dirlist.DirList{
 			gitrepos.GitRepos(serveGit),
-			"/git",
 			tpl,
 			[]string{"README.md", "README"},
 		}
 
-		http.HandleFunc("/git/", logRequest(gitHandle))
+		http.Handle("/git/", logRequest(http.StripPrefix("/git", gitHandle)))
 	}
 
 	log.Printf("Listening to %s", listenAddr)
